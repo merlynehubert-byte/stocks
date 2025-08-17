@@ -1,4 +1,13 @@
 import streamlit as st
+
+# Page configuration must be the first Streamlit command
+st.set_page_config(
+    page_title="Advanced Stock Trading Education Hub",
+    page_icon="📈",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
@@ -8,7 +17,14 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import requests
 import json
-from scipy import stats
+
+# Try to import scipy, fallback if not available
+try:
+    from scipy import stats
+    SCIPY_AVAILABLE = True
+except ImportError:
+    SCIPY_AVAILABLE = False
+    st.warning("SciPy not available. Some advanced features may be limited.")
 
 # Try to import TA-Lib, fallback to manual implementation if not available
 try:
@@ -17,14 +33,6 @@ try:
 except ImportError:
     TALIB_AVAILABLE = False
     st.warning("TA-Lib not available. Using simplified technical indicators.")
-
-# Page configuration
-st.set_page_config(
-    page_title="Advanced Stock Trading Education Hub",
-    page_icon="📈",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Custom CSS for advanced styling
 st.markdown("""
@@ -213,11 +221,34 @@ def calculate_obv(close, volume):
 @st.cache_data(ttl=300)  # Cache for 5 minutes
 def get_stock_data(symbol, period="1y"):
     try:
+        # Clean the symbol
+        symbol = symbol.strip().upper()
+        
+        # Create ticker object
         stock = yf.Ticker(symbol)
-        hist = stock.history(period=period)
-        info = stock.info
+        
+        # Get historical data with better error handling
+        try:
+            hist = stock.history(period=period, progress=False)
+            if hist.empty:
+                st.error(f"No data found for {symbol}. Please check the symbol.")
+                return None, None
+        except Exception as e:
+            st.error(f"Error fetching historical data for {symbol}: {str(e)}")
+            return None, None
+        
+        # Get stock info with error handling
+        try:
+            info = stock.info
+            if not info or len(info) < 5:  # Basic validation
+                info = {}
+        except Exception as e:
+            st.warning(f"Could not fetch detailed info for {symbol}: {str(e)}")
+            info = {}
+        
         return hist, info
-    except:
+    except Exception as e:
+        st.error(f"Error with {symbol}: {str(e)}")
         return None, None
 
 # Technical indicators calculation
@@ -225,35 +256,49 @@ def calculate_technical_indicators(df):
     if df is None or df.empty:
         return df
     
-    prices = df['Close'].values
-    high = df['High'].values
-    low = df['Low'].values
-    volume = df['Volume'].values
+    # Ensure we have the required columns
+    required_columns = ['Open', 'High', 'Low', 'Close', 'Volume']
+    if not all(col in df.columns for col in required_columns):
+        st.error("Missing required price data columns")
+        return df
     
-    if TALIB_AVAILABLE:
-        # Use TA-Lib if available
-        df['RSI'] = talib.RSI(prices, timeperiod=14)
-        df['SMA_20'] = talib.SMA(prices, timeperiod=20)
-        df['SMA_50'] = talib.SMA(prices, timeperiod=50)
-        df['EMA_12'] = talib.EMA(prices, timeperiod=12)
-        df['EMA_26'] = talib.EMA(prices, timeperiod=26)
-        df['MACD'], df['MACD_Signal'], df['MACD_Hist'] = talib.MACD(prices)
-        df['BB_Upper'], df['BB_Middle'], df['BB_Lower'] = talib.BBANDS(prices)
-        df['STOCH_K'], df['STOCH_D'] = talib.STOCH(high, low, prices)
-        df['OBV'] = talib.OBV(prices, volume)
-    else:
-        # Use manual implementation
-        df['RSI'] = calculate_rsi(prices, 14)
-        df['SMA_20'] = calculate_sma(prices, 20)
-        df['SMA_50'] = calculate_sma(prices, 50)
-        df['EMA_12'] = calculate_ema(prices, 12)
-        df['EMA_26'] = calculate_ema(prices, 26)
-        df['MACD'], df['MACD_Signal'], df['MACD_Hist'] = calculate_macd(prices)
-        df['BB_Upper'], df['BB_Middle'], df['BB_Lower'] = calculate_bollinger_bands(prices)
-        df['STOCH_K'], df['STOCH_D'] = calculate_stochastic(high, low, prices)
-        df['OBV'] = calculate_obv(prices, volume)
+    # Check if we have enough data points
+    if len(df) < 50:
+        st.warning(f"Limited data points ({len(df)}). Some indicators may not be accurate.")
     
-    return df
+    try:
+        prices = df['Close'].values
+        high = df['High'].values
+        low = df['Low'].values
+        volume = df['Volume'].values
+        
+        if TALIB_AVAILABLE:
+            # Use TA-Lib if available
+            df['RSI'] = talib.RSI(prices, timeperiod=14)
+            df['SMA_20'] = talib.SMA(prices, timeperiod=20)
+            df['SMA_50'] = talib.SMA(prices, timeperiod=50)
+            df['EMA_12'] = talib.EMA(prices, timeperiod=12)
+            df['EMA_26'] = talib.EMA(prices, timeperiod=26)
+            df['MACD'], df['MACD_Signal'], df['MACD_Hist'] = talib.MACD(prices)
+            df['BB_Upper'], df['BB_Middle'], df['BB_Lower'] = talib.BBANDS(prices)
+            df['STOCH_K'], df['STOCH_D'] = talib.STOCH(high, low, prices)
+            df['OBV'] = talib.OBV(prices, volume)
+        else:
+            # Use manual implementation
+            df['RSI'] = calculate_rsi(prices, 14)
+            df['SMA_20'] = calculate_sma(prices, 20)
+            df['SMA_50'] = calculate_sma(prices, 50)
+            df['EMA_12'] = calculate_ema(prices, 12)
+            df['EMA_26'] = calculate_ema(prices, 26)
+            df['MACD'], df['MACD_Signal'], df['MACD_Hist'] = calculate_macd(prices)
+            df['BB_Upper'], df['BB_Middle'], df['BB_Lower'] = calculate_bollinger_bands(prices)
+            df['STOCH_K'], df['STOCH_D'] = calculate_stochastic(high, low, prices)
+            df['OBV'] = calculate_obv(prices, volume)
+        
+        return df
+    except Exception as e:
+        st.error(f"Error calculating technical indicators: {str(e)}")
+        return df
 
 # AI-powered analysis function
 def ai_analysis(df, symbol):
