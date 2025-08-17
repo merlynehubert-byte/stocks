@@ -4,11 +4,28 @@
     "repository": {
       "type": "github",
       "url": "https://github.com/merlynehubert-byte/stocks.git"
-    }
+    },
+    "tasks": [
+      "code_improvement",
+      "bug_fixes",
+      "documentation",
+      "performance_optimization",
+      "security_audit",
+      "test_coverage"
+    ],
+    "schedule": "continuous",
+    "autoCommit": true,
+    "reviewBeforeCommit": true
   },
   "project": {
     "name": "stocks",
     "type": "python",
-    "framework": "streamlit"
+    "framework": "streamlit",
+    "description": "Stock analysis and visualization application with educational content"
+  },
+  "ai": {
+    "model": "claude-3.5-sonnet",
+    "contextWindow": "large",
+    "temperature": 0.1
   }
 } 

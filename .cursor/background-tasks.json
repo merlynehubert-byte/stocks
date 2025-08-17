@@ -1,0 +1,110 @@
+{
+  "tasks": {
+    "code_improvement": {
+      "description": "Continuously improve code quality, readability, and maintainability",
+      "priority": "high",
+      "frequency": "daily",
+      "files": ["*.py"],
+      "actions": [
+        "refactor_complex_functions",
+        "improve_variable_naming",
+        "add_type_hints",
+        "optimize_imports",
+        "remove_unused_code"
+      ]
+    },
+    "bug_fixes": {
+      "description": "Identify and fix bugs, errors, and issues in the codebase",
+      "priority": "critical",
+      "frequency": "continuous",
+      "files": ["*.py"],
+      "actions": [
+        "scan_for_errors",
+        "fix_syntax_errors",
+        "handle_exceptions",
+        "validate_data_inputs",
+        "check_edge_cases"
+      ]
+    },
+    "documentation": {
+      "description": "Maintain and improve documentation, comments, and README files",
+      "priority": "medium",
+      "frequency": "weekly",
+      "files": ["*.py", "*.md"],
+      "actions": [
+        "update_function_docs",
+        "improve_readme",
+        "add_code_comments",
+        "create_api_documentation",
+        "update_installation_instructions"
+      ]
+    },
+    "performance_optimization": {
+      "description": "Optimize application performance and efficiency",
+      "priority": "medium",
+      "frequency": "weekly",
+      "files": ["*.py"],
+      "actions": [
+        "optimize_data_processing",
+        "improve_memory_usage",
+        "reduce_load_times",
+        "optimize_database_queries",
+        "cache_frequently_used_data"
+      ]
+    },
+    "security_audit": {
+      "description": "Perform security audits and fix vulnerabilities",
+      "priority": "high",
+      "frequency": "weekly",
+      "files": ["*.py", "requirements.txt"],
+      "actions": [
+        "check_dependency_vulnerabilities",
+        "validate_user_inputs",
+        "secure_api_endpoints",
+        "audit_file_permissions",
+        "check_for_sql_injection"
+      ]
+    },
+    "test_coverage": {
+      "description": "Improve test coverage and add missing tests",
+      "priority": "medium",
+      "frequency": "weekly",
+      "files": ["*.py"],
+      "actions": [
+        "add_unit_tests",
+        "create_integration_tests",
+        "improve_test_coverage",
+        "add_edge_case_tests",
+        "create_mock_data"
+      ]
+    }
+  },
+  "project_specific": {
+    "streamlit_optimization": {
+      "description": "Optimize Streamlit application for better user experience",
+      "priority": "high",
+      "frequency": "daily",
+      "files": ["*app.py"],
+      "actions": [
+        "optimize_page_load_speed",
+        "improve_ui_responsiveness",
+        "add_loading_states",
+        "optimize_chart_rendering",
+        "improve_navigation"
+      ]
+    },
+    "stock_analysis_features": {
+      "description": "Enhance stock analysis features and add new capabilities",
+      "priority": "medium",
+      "frequency": "weekly",
+      "files": ["*app.py"],
+      "actions": [
+        "add_new_technical_indicators",
+        "improve_chart_visualizations",
+        "add_more_stock_data_sources",
+        "enhance_analysis_algorithms",
+        "add_portfolio_tracking"
+      ]
+    }
+  }
+} 

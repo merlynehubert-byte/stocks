@@ -1,0 +1,77 @@
+{
+  "agent": {
+    "name": "StockAnalysisAgent",
+    "version": "1.0.0",
+    "description": "Background agent for stock analysis and educational application",
+    "active": true
+  },
+  "permissions": {
+    "file_access": {
+      "read": ["*.py", "*.md", "*.txt", "*.json"],
+      "write": ["*.py", "*.md", "*.txt"],
+      "create": ["*.py", "*.md", "*.txt", "tests/*.py"]
+    },
+    "git_operations": {
+      "commit": true,
+      "push": false,
+      "create_branches": false,
+      "merge": false
+    },
+    "system_access": {
+      "run_tests": true,
+      "install_dependencies": false,
+      "deploy": false
+    }
+  },
+  "workflow": {
+    "scan_frequency": "continuous",
+    "commit_frequency": "daily",
+    "review_required": true,
+    "auto_merge": false,
+    "notification_channels": ["cursor_chat"]
+  },
+  "quality_gates": {
+    "code_quality": {
+      "min_complexity": "low",
+      "require_type_hints": true,
+      "require_docstrings": true,
+      "max_function_length": 50
+    },
+    "testing": {
+      "min_coverage": 70,
+      "require_unit_tests": true,
+      "require_integration_tests": false
+    },
+    "security": {
+      "vulnerability_scan": true,
+      "dependency_check": true,
+      "input_validation": true
+    }
+  },
+  "specializations": {
+    "streamlit": {
+      "optimize_performance": true,
+      "improve_ui": true,
+      "add_loading_states": true,
+      "optimize_charts": true
+    },
+    "financial_applications": {
+      "validate_calculations": true,
+      "add_disclaimers": true,
+      "handle_edge_cases": true,
+      "educational_accuracy": true
+    },
+    "python_best_practices": {
+      "pep8_compliance": true,
+      "type_hints": true,
+      "error_handling": true,
+      "documentation": true
+    }
+  },
+  "communication": {
+    "style": "professional",
+    "detail_level": "comprehensive",
+    "include_examples": true,
+    "explain_reasoning": true
+  }
+} 
