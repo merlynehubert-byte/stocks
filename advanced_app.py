@@ -303,69 +303,107 @@ def calculate_technical_indicators(df):
 # AI-powered analysis function
 def ai_analysis(df, symbol):
     if df is None or df.empty:
-        return "Insufficient data for analysis"
+        return ["Insufficient data for analysis"]
     
     signals = []
     
-    # RSI Analysis
-    if 'RSI' in df.columns and not df['RSI'].isna().all():
-        current_rsi = df['RSI'].iloc[-1]
-        if not pd.isna(current_rsi):
-            if current_rsi > 70:
-                signals.append("RSI indicates overbought conditions (>70)")
-            elif current_rsi < 30:
-                signals.append("RSI indicates oversold conditions (<30)")
-            else:
-                signals.append(f"RSI is neutral at {current_rsi:.1f}")
-    
-    # Moving Average Analysis
-    current_price = df['Close'].iloc[-1]
-    if 'SMA_20' in df.columns and 'SMA_50' in df.columns:
-        sma_20 = df['SMA_20'].iloc[-1]
-        sma_50 = df['SMA_50'].iloc[-1]
+    try:
+        # RSI Analysis
+        if 'RSI' in df.columns and not df['RSI'].isna().all():
+            current_rsi = df['RSI'].iloc[-1]
+            if not pd.isna(current_rsi):
+                if current_rsi > 70:
+                    signals.append("RSI indicates overbought conditions (>70)")
+                elif current_rsi < 30:
+                    signals.append("RSI indicates oversold conditions (<30)")
+                else:
+                    signals.append(f"RSI is neutral at {current_rsi:.1f}")
         
-        if not pd.isna(sma_20) and not pd.isna(sma_50):
-            if current_price > sma_20 > sma_50:
-                signals.append("Strong uptrend: Price above 20-day and 50-day SMAs")
-            elif current_price < sma_20 < sma_50:
-                signals.append("Strong downtrend: Price below 20-day and 50-day SMAs")
-            elif current_price > sma_20 and sma_20 < sma_50:
-                signals.append("Potential trend reversal: Price above 20-day SMA but below 50-day SMA")
-    
-    # MACD Analysis
-    if 'MACD' in df.columns and 'MACD_Signal' in df.columns:
-        macd = df['MACD'].iloc[-1]
-        macd_signal = df['MACD_Signal'].iloc[-1]
+        # Moving Average Analysis
+        current_price = df['Close'].iloc[-1]
+        if 'SMA_20' in df.columns and 'SMA_50' in df.columns:
+            sma_20 = df['SMA_20'].iloc[-1]
+            sma_50 = df['SMA_50'].iloc[-1]
+            
+            if not pd.isna(sma_20) and not pd.isna(sma_50):
+                if current_price > sma_20 > sma_50:
+                    signals.append("Strong uptrend: Price above 20-day and 50-day SMAs")
+                elif current_price < sma_20 < sma_50:
+                    signals.append("Strong downtrend: Price below 20-day and 50-day SMAs")
+                elif current_price > sma_20 and sma_20 < sma_50:
+                    signals.append("Potential trend reversal: Price above 20-day SMA but below 50-day SMA")
         
-        if not pd.isna(macd) and not pd.isna(macd_signal):
-            if macd > macd_signal:
-                signals.append("MACD bullish: MACD line above signal line")
-            else:
-                signals.append("MACD bearish: MACD line below signal line")
-    
-    # Bollinger Bands Analysis
-    if 'BB_Upper' in df.columns and 'BB_Lower' in df.columns:
-        bb_upper = df['BB_Upper'].iloc[-1]
-        bb_lower = df['BB_Lower'].iloc[-1]
+        # MACD Analysis
+        if 'MACD' in df.columns and 'MACD_Signal' in df.columns:
+            macd = df['MACD'].iloc[-1]
+            macd_signal = df['MACD_Signal'].iloc[-1]
+            
+            if not pd.isna(macd) and not pd.isna(macd_signal):
+                if macd > macd_signal:
+                    signals.append("MACD bullish: MACD line above signal line")
+                else:
+                    signals.append("MACD bearish: MACD line below signal line")
         
-        if not pd.isna(bb_upper) and not pd.isna(bb_lower):
-            if current_price > bb_upper:
-                signals.append("Price above upper Bollinger Band - potential reversal")
-            elif current_price < bb_lower:
-                signals.append("Price below lower Bollinger Band - potential bounce")
+        # Bollinger Bands Analysis
+        if 'BB_Upper' in df.columns and 'BB_Lower' in df.columns:
+            bb_upper = df['BB_Upper'].iloc[-1]
+            bb_lower = df['BB_Lower'].iloc[-1]
+            
+            if not pd.isna(bb_upper) and not pd.isna(bb_lower):
+                if current_price > bb_upper:
+                    signals.append("Price above upper Bollinger Band - potential reversal")
+                elif current_price < bb_lower:
+                    signals.append("Price below lower Bollinger Band - potential bounce")
+                else:
+                    signals.append("Price within Bollinger Bands - normal volatility")
+        
+        # Volume Analysis
+        if len(df) >= 20:
+            avg_volume = df['Volume'].rolling(20).mean().iloc[-1]
+            current_volume = df['Volume'].iloc[-1]
+            
+            if current_volume > avg_volume * 1.5:
+                signals.append("High volume - strong conviction in current move")
+            elif current_volume < avg_volume * 0.5:
+                signals.append("Low volume - weak conviction in current move")
+        
+        # Price trend analysis
+        if len(df) >= 5:
+            recent_prices = df['Close'].tail(5)
+            if recent_prices.iloc[-1] > recent_prices.iloc[0]:
+                signals.append("Recent 5-day uptrend")
             else:
-                signals.append("Price within Bollinger Bands - normal volatility")
-    
-    # Volume Analysis
-    avg_volume = df['Volume'].rolling(20).mean().iloc[-1]
-    current_volume = df['Volume'].iloc[-1]
-    
-    if current_volume > avg_volume * 1.5:
-        signals.append("High volume - strong conviction in current move")
-    elif current_volume < avg_volume * 0.5:
-        signals.append("Low volume - weak conviction in current move")
+                signals.append("Recent 5-day downtrend")
+        
+        if not signals:
+            signals.append("No clear signals detected. Consider longer timeframe analysis.")
+            
+    except Exception as e:
+        signals.append(f"Error in analysis: {str(e)}")
     
     return signals
+
+# Test yfinance connectivity
+def test_yfinance_connection():
+    try:
+        # Test with a well-known stock
+        test_stock = yf.Ticker("AAPL")
+        test_data = test_stock.history(period="5d", progress=False)
+        if not test_data.empty:
+            return True, "✅ Yahoo Finance connection successful"
+        else:
+            return False, "❌ No data received from Yahoo Finance"
+    except Exception as e:
+        return False, f"❌ Yahoo Finance connection failed: {str(e)}"
+
+# Test connection on app startup
+if 'yfinance_test' not in st.session_state:
+    st.session_state.yfinance_test = test_yfinance_connection()
+
+# Display connection status
+if not st.session_state.yfinance_test[0]:
+    st.error(st.session_state.yfinance_test[1])
+    st.info("The app will work with limited functionality. Please check your internet connection.")
 
 # Sidebar navigation
 st.sidebar.title("📚 Advanced Learning Hub")
@@ -448,6 +486,19 @@ if page == "🏠 Dashboard":
                         st.success(f"✅ {symbol} data loaded successfully!")
                     else:
                         st.error(f"❌ Could not fetch data for {symbol}")
+    
+    # Show sample stocks if no data loaded
+    if 'current_stock' not in st.session_state:
+        st.markdown("""
+        <div class="info-box">
+            <h4>💡 Try these popular stocks:</h4>
+            <p><strong>AAPL</strong> - Apple Inc.</p>
+            <p><strong>MSFT</strong> - Microsoft Corporation</p>
+            <p><strong>GOOGL</strong> - Alphabet Inc.</p>
+            <p><strong>TSLA</strong> - Tesla Inc.</p>
+            <p><strong>AMZN</strong> - Amazon.com Inc.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 # Real-Time Analysis
 elif page == "📊 Real-Time Analysis":
