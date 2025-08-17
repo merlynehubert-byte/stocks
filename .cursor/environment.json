@@ -1,0 +1,11 @@
+{
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/merlynehubert-byte/stocks.git",
+    "visibility": "public"
+  },
+  "project": {
+    "name": "stocks",
+    "description": "Stock analysis and visualization application"
+  }
+} 

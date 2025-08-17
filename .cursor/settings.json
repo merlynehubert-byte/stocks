@@ -1,0 +1,14 @@
+{
+  "backgroundAgent": {
+    "enabled": true,
+    "repository": {
+      "type": "github",
+      "url": "https://github.com/merlynehubert-byte/stocks.git"
+    }
+  },
+  "project": {
+    "name": "stocks",
+    "type": "python",
+    "framework": "streamlit"
+  }
+} 
